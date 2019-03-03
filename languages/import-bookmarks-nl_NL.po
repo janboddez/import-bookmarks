@@ -1,0 +1,38 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Import Bookmarks\n"
+"POT-Creation-Date: 2019-03-03 12:32+0100\n"
+"PO-Revision-Date: 2019-03-03 12:34+0100\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: nl_NL\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 2.0.6\n"
+"X-Poedit-Basepath: ..\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Poedit-KeywordsList: __;_e\n"
+"X-Poedit-SearchPath-0: .\n"
+"X-Poedit-SearchPathExcluded-0: languages\n"
+
+#: import-bookmarks.php:45 import-bookmarks.php:46 import-bookmarks.php:61
+#: import-bookmarks.php:111
+msgid "Import Bookmarks"
+msgstr "Bookmarks importeren"
+
+#: import-bookmarks.php:68
+msgid "Bookmarks File"
+msgstr "Bookmarksbestand"
+
+#: import-bookmarks.php:72
+msgid "Post Type"
+msgstr "Berichttype"
+
+#: import-bookmarks.php:95
+msgid "Post Status"
+msgstr "Berichtstatus"
+
+#: import-bookmarks.php:117
+msgid "Bookmarks imported!"
+msgstr "Importeren gereed!"
