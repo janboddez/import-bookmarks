@@ -116,6 +116,10 @@ class Bookmarks_Importer {
 							<?php endforeach; ?>
 						</select></td>
 					</tr>
+					<tr valign="top">
+						<th scope="row"><?php _e( 'Open in New Tab', 'import-bookmarks' ); ?></th>
+						<td><label><input type="checkbox" name="force_new_tab" value="1"> <?php _e( 'Force bookmarks in newly created posts to open in a new tab.', 'import-bookmarks' ); ?></label>
+					</tr>
 				</table>
 				<p class="submit"><?php submit_button( __( 'Import Bookmarks', 'import-bookmarks' ), 'primary', 'submit', false ); ?></p>
 			</form>
@@ -179,13 +183,19 @@ class Bookmarks_Importer {
 			$post_status = $_POST['post_status'];
 		}
 
+		$force_new_tab = '';
+
+		if ( ! empty( $_POST['force_new_tab'] ) && '1' === $_POST['force_new_tab'] ) {
+			$force_new_tab = ' target="_blank" rel="noreferrer noopener"';
+		}
+
 		$parser    = new \NetscapeBookmarkParser();
 		$bookmarks = $parser->parseFile( $uploaded_file['file'] );
 
 		foreach ( $bookmarks as $bookmark ) {
 			$post_title    = sanitize_text_field( $bookmark['title'] );
 			$post_content  = sanitize_text_field( $bookmark['note'] );
-			$post_content .= "\n\n<a href='" . esc_url( $bookmark['uri'] ) . "'>" . $post_title . '</a>';
+			$post_content .= "\n\n<a href='" . esc_url( $bookmark['uri'] ) . "'" . $force_new_tab . '>' . $post_title . '</a>';
 			$post_content  = trim( $post_content );
 
 			if ( function_exists( 'use_block_editor_for_post_type' ) && use_block_editor_for_post_type( $post_type ) ) {
