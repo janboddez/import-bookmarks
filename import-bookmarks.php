@@ -73,7 +73,7 @@ class Bookmarks_Importer {
 		add_management_page(
 			__( 'Import Bookmarks', 'import-bookmarks' ),
 			__( 'Import Bookmarks', 'import-bookmarks' ),
-			'manage_options',
+			'import',
 			'import-bookmarks',
 			array( $this, 'settings_page' )
 		);
@@ -116,10 +116,6 @@ class Bookmarks_Importer {
 							<?php endforeach; ?>
 						</select></td>
 					</tr>
-					<tr valign="top">
-						<th scope="row"><?php _e( 'Open in New Tab', 'import-bookmarks' ); ?></th>
-						<td><label><input type="checkbox" name="force_new_tab" value="1"> <?php _e( 'Force bookmarks in newly created posts to open in a new tab.', 'import-bookmarks' ); ?></label>
-					</tr>
 				</table>
 				<p class="submit"><?php submit_button( __( 'Import Bookmarks', 'import-bookmarks' ), 'primary', 'submit', false ); ?></p>
 			</form>
@@ -141,21 +137,21 @@ class Bookmarks_Importer {
 		set_time_limit( 0 );
 
 		if ( ! current_user_can( 'import' ) ) {
-			return;
+			wp_die( __( 'You have insufficient permissions to access this page.', 'import-bookmarks' ) );
 		}
 
 		if ( ! isset( $_POST['import-bookmarks-nonce'] ) || ! wp_verify_nonce( $_POST['import-bookmarks-nonce'], 'import-bookmarks' ) ) {
-			return;
+			wp_die( __( 'This page should not be accessed directly.', 'import-bookmarks' ) );
 		}
 
 		if ( empty( $_FILES['bookmarks_file'] ) || 0 === $_FILES['bookmarks_file']['size'] ) {
-			return;
+			wp_die( __( 'Something went wrong uploading the file.', 'import-bookmarks' ) );
 		}
 
 		$file_type = wp_check_filetype( basename( $_FILES['bookmarks_file']['name'] ) );
 
 		if ( 'text/html' !== $file_type['type'] ) {
-			return;
+			wp_die( __( 'Unsupported file type.', 'import-bookmarks' ) );
 		}
 
 		if ( ! function_exists( 'wp_handle_upload' ) ) {
@@ -165,12 +161,10 @@ class Bookmarks_Importer {
 		$uploaded_file = wp_handle_upload( $_FILES['bookmarks_file'], array( 'test_form' => false ) );
 
 		if ( empty( $uploaded_file['file'] ) || ! is_string( $uploaded_file['file'] ) ) {
-			return;
+			wp_die( __( 'Something went wrong uploading the file.', 'import-bookmarks' ) );
 		}
 
-		// Default value.
-		$post_type = 'post';
-
+		$post_type  = 'post';
 		$post_types = array_diff( get_post_types(), $this->default_post_types );
 
 		if ( ! empty( $_POST['post_type'] ) && in_array( $_POST['post_type'], $post_types ) ) {
@@ -183,30 +177,15 @@ class Bookmarks_Importer {
 			$post_status = $_POST['post_status'];
 		}
 
-		$force_new_tab = '';
-
-		if ( ! empty( $_POST['force_new_tab'] ) && '1' === $_POST['force_new_tab'] ) {
-			$force_new_tab = ' target="_blank" rel="noreferrer noopener"';
-		}
-
 		$parser    = new \NetscapeBookmarkParser();
 		$bookmarks = $parser->parseFile( $uploaded_file['file'] );
 
 		foreach ( $bookmarks as $bookmark ) {
 			$post_title    = sanitize_text_field( $bookmark['title'] );
 			$post_content  = sanitize_text_field( $bookmark['note'] );
-			$post_content .= "\n\n<a href='" . esc_url( $bookmark['uri'] ) . "'" . $force_new_tab . '>' . $post_title . '</a>';
+			$post_content .= "\n\n<a href='" . esc_url( $bookmark['uri'] ) . "'>" . $post_title . '</a>';
 			$post_content  = trim( $post_content );
-
-			if ( function_exists( 'use_block_editor_for_post_type' ) && use_block_editor_for_post_type( $post_type ) ) {
-				// Convert to paragraph blocks.
-				$post_content = str_replace(
-					"\n\n",
-					"</p>\n<!-- /wp:paragraph -->\n\n<!-- wp:paragraph -->\n<p>",
-					$post_content
-				);
-				$post_content = "<!-- wp:paragraph -->\n<p>" . $post_content . "</p>\n<!-- /wp:paragraph -->";
-			}
+			$post_content  = apply_filters( 'import_bookmarks_post_content', $post_content, $bookmark );
 
 			$post_id = wp_insert_post( array(
 				'post_title'   => $post_title,
