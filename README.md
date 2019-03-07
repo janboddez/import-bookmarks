@@ -15,8 +15,10 @@ Some examples of what's possible. These would typically go into your (child) the
 ```
 // Force open links in new tab.
 add_filter( 'import_bookmarks_post_content', function( $post_content, $bookmark, $post_type ) {
-    $post_title    = sanitize_text_field( $bookmark['title'] );    $post_content  = sanitize_text_field( $bookmark['note'] );
-    $post_content .= "\n\n<a href='" . esc_url( $bookmark['uri'] ) . "' target='_blank' rel='noopener noreferrer'>" . $post_title . '</a>';
+    $post_title    = sanitize_text_field( $bookmark['title'] );
+    $post_content  = sanitize_text_field( $bookmark['note'] );
+    $post_content .= "\n\n<a href='" . esc_url( $bookmark['uri'] ) .
+                     "' target='_blank' rel='noopener noreferrer'>" . $post_title . '</a>';
     $post_content  = trim( $post_content );
 
     return $post_content;
@@ -27,7 +29,8 @@ add_filter( 'import_bookmarks_post_content', function( $post_content, $bookmark,
 // Add (some!) Gutenberg support. Note: unlike Gutenberg's 'Convert to blocks',
 // this'll not autodetect and apply, e.g., WordPress embeds.
 add_filter( 'import_bookmarks_post_content', function( $post_content, $bookmark, $post_type ) {
-    if ( function_exists( 'use_block_editor_for_post_type' ) && use_block_editor_for_post_type( $post_type ) ) {
+    if ( function_exists( 'use_block_editor_for_post_type' ) &&
+         use_block_editor_for_post_type( $post_type ) ) {
         // Convert to paragraph blocks.
         $post_content = str_replace(
             "\n\n",
