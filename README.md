@@ -10,7 +10,9 @@ Bookmarks can be added as regular Posts or instances of a Custom Post Type (crea
 Newly added bookmarks can be marked Published, Draft, Pending review or Private.
 
 ## Modifying the Post Content Format of Imported Bookmarks
-Some examples of what's possible. These would typically go into your (child) theme's `functions.php`. Note: core hooks like `publish_{$post->post_type}` allow even more customization, but that's outside the scope of this readme.
+Use the `import_bookmarks_post_content` filter to customize imported bookmarks' markup with only minimal PHP code.
+
+Some examples of what's possible. (These would typically go into your (child) theme's `functions.php`.) Note: core hooks like `publish_{$post->post_type}` allow even more customization, but that's outside the scope of this readme.
 
 ```
 // Force open links in new tab.
