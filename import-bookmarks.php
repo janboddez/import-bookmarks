@@ -4,7 +4,7 @@
  * Description: Import browser bookmarks as WordPress posts.
  * Author: Jan Boddez
  * Author URI: https://janboddez.tech/
- * Version: 0.2.1
+ * Version: 0.2.2
  */
 
 namespace Import_Bookmarks;
@@ -185,7 +185,7 @@ class Bookmarks_Importer {
 			$post_content  = sanitize_text_field( $bookmark['note'] );
 			$post_content .= "\n\n<a href='" . esc_url( $bookmark['uri'] ) . "'>" . $post_title . '</a>';
 			$post_content  = trim( $post_content );
-			$post_content  = apply_filters( 'import_bookmarks_post_content', $post_content, $bookmark );
+			$post_content  = apply_filters( 'import_bookmarks_post_content', $post_content, $bookmark, $post_type );
 
 			$post_id = wp_insert_post( array(
 				'post_title'   => $post_title,
