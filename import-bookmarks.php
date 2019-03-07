@@ -4,7 +4,7 @@
  * Description: Import browser bookmarks as WordPress posts.
  * Author: Jan Boddez
  * Author URI: https://janboddez.tech/
- * Version: 0.2.2
+ * Version: 0.2.3
  */
 
 namespace Import_Bookmarks;
@@ -85,9 +85,11 @@ class Bookmarks_Importer {
 	 * @since 0.1.0
 	 */
 	public function settings_page() {
+		$post_types = array_diff( get_post_types(), $this->default_post_types );
 		?>
 		<div class="wrap">
 			<h1><?php _e( 'Import Bookmarks', 'import-bookmarks' ); ?></h1>
+
 			<form action="admin-post.php" method="post" enctype="multipart/form-data">
 				<?php wp_nonce_field( 'import-bookmarks', 'import-bookmarks-nonce' ); ?>
 				<input type="hidden" name="action" value="import_bookmarks">
@@ -100,11 +102,8 @@ class Bookmarks_Importer {
 					<tr valign="top">
 						<th scope="row"><label for="post-type"><?php _e( 'Post Type', 'import-bookmarks' ); ?></label></th>
 						<td><select name="post_type" id="post-type">
-							<?php
-							$post_types = array_diff( get_post_types(), $this->default_post_types );
-							?>
 							<?php foreach ( $post_types as $post_type ) : ?>
-								<option value="<?php $post_type = get_post_type_object( $post_type ); echo esc_attr( $post_type->name ); ?>"><?php echo esc_html( $post_type->labels->singular_name ); ?></option>
+								<option value="<?php $post_type = get_post_type_object( $post_type ); esc_attr_e( $post_type->name ); ?>"><?php echo esc_html( $post_type->labels->singular_name ); ?></option>
 							<?php endforeach; ?>
 						</select></td>
 					</tr>
@@ -112,19 +111,20 @@ class Bookmarks_Importer {
 						<th scope="row"><label for="post-status"><?php _e( 'Post Status', 'import-bookmarks' ); ?></label></th>
 						<td><select name="post_status" id="post-status">
 							<?php foreach ( $this->post_statuses as $post_status ) : ?>
-								<option value="<?php echo esc_attr( $post_status ); ?>"><?php echo esc_html( ucfirst( $post_status ) ); ?></option>
+								<option value="<?php echo esc_attr( $post_status ); ?>"><?php esc_html_e( ucfirst( $post_status ) ); ?></option>
 							<?php endforeach; ?>
 						</select></td>
 					</tr>
 				</table>
+
 				<p class="submit"><?php submit_button( __( 'Import Bookmarks', 'import-bookmarks' ), 'primary', 'submit', false ); ?></p>
 			</form>
 		</div>
 
 		<?php if ( ! empty( $_GET['message'] ) && 'success' === $_GET['message'] ) : ?>
-		<div class="notice notice-success">
-			<p><?php _e( 'Bookmarks imported!', 'import-bookmarks' ); ?></p>
-		</div>
+			<div class="notice notice-success">
+				<p><?php _e( 'Bookmarks imported!', 'import-bookmarks' ); ?></p>
+			</div>
 		<?php endif;
 	}
 
@@ -134,8 +134,6 @@ class Bookmarks_Importer {
 	 * @since 0.1.0
 	 */
 	public function import() {
-		set_time_limit( 0 );
-
 		if ( ! current_user_can( 'import' ) ) {
 			wp_die( __( 'You have insufficient permissions to access this page.', 'import-bookmarks' ) );
 		}
@@ -185,7 +183,13 @@ class Bookmarks_Importer {
 			$post_content  = sanitize_text_field( $bookmark['note'] );
 			$post_content .= "\n\n<a href='" . esc_url( $bookmark['uri'] ) . "'>" . $post_title . '</a>';
 			$post_content  = trim( $post_content );
-			$post_content  = apply_filters( 'import_bookmarks_post_content', $post_content, $bookmark, $post_type );
+
+			/**
+			 * Allow filtering the post's HTML.
+			 *
+			 * @since 2.1.0
+			 */
+			$post_content = apply_filters( 'import_bookmarks_post_content', $post_content, $bookmark, $post_type );
 
 			$post_id = wp_insert_post( array(
 				'post_title'   => $post_title,
