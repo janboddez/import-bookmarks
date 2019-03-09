@@ -4,7 +4,11 @@
  * Description: Import browser bookmarks as WordPress posts.
  * Author: Jan Boddez
  * Author URI: https://janboddez.tech/
- * Version: 0.2.3
+ * License: General Public License v3.0
+ * License URI: https://www.gnu.org/licenses/gpl-3.0.html
+ * Text Domain: import-bookmarks
+ * Domain Path: /languages
+ * Version: 0.2.4
  */
 
 namespace Import_Bookmarks;

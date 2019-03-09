@@ -69,6 +69,9 @@ add_filter( 'import_bookmarks_post_content', function( $post_content, $bookmark 
 
 ## Changelog
 
+### 0.2.4
+Fixed translation support.
+
 ### 0.2.3
 Removed call to `set_time_limit()`. Updated documentation.
 
@@ -82,4 +85,4 @@ Fixed error handling. Added `import_bookmarks_post_content` filter hook, to allo
 Added translation functionality.
 
 ### 0.1
-Initial release
+Initial release.
