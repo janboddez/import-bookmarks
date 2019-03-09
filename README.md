@@ -20,7 +20,7 @@ Newly added bookmarks can be marked 'Published', 'Draft', 'Pending review' or 'P
 ### Important
 **Post dates** are set to the date the bookmark was created. Monthly archives, etc., work just fine.
 
-**Duplicated entries** are not detected. A **possible use case** would be to periodically 'dump' all browser bookmarks into WordPress, then clear all of them from your browser—rinse, repeat.
+**Duplicated entries** are not detected. A **possible use case** would be to periodically 'dump' all browser bookmarks into WordPress, then clear all of them from your browser—rinse, repeat. (However, if you *did* want to import the same link twice, like with a different title, that would be perfectly fine.)
 
 ### Advanced: Modifying the Format of Imported Bookmarks
 Use the `import_bookmarks_post_content` filter to **customize imported bookmarks' markup** with only minimal PHP code. (Other than that, bookmarks, like all other posts, will be styled by your theme's CSS file[s].)
