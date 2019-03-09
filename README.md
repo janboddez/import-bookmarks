@@ -3,16 +3,26 @@ Import browser bookmarks into WordPress.
 
 Export bookmarks from your browser and import them as WordPress posts. Supports Custom Post Types.
 
+## Installation
+In WP Admin, go to 'Plugins > Add New', and search for 'import bookmarks'. Install and activate. Or install from https://wordpress.org/plugins/import-bookmarks/.
+
+## Usage
+In WP Admin, head over to 'Import > Import Bookmarks', select a bookmarks file (in **HTML format**, as exported from your browser of choice) to upload, and choose the destination post type and status.
+
 ## Custom Post Types
 Bookmarks can be added as regular Posts or instances of a Custom Post Type (created through, e.g., [Custom Post UI](https://wordpress.org/plugins/custom-post-type-ui/), or another plugin).
 
+This plugin, on its own, will **not** register a new Custom Post Type (nor modify existing ones).
+
 ## Statuses
-Newly added bookmarks can be marked Published, Draft, Pending review or Private.
+Newly added bookmarks can be marked 'Published', 'Draft', 'Pending review' or 'Private'.
 
 ## Modifying the Post Content Format of Imported Bookmarks
 Use the `import_bookmarks_post_content` filter to customize imported bookmarks' markup with only minimal PHP code.
 
 Some examples of what's possible. (These would typically go into your (child) theme's `functions.php`.) Note: core hooks like `publish_{$post->post_type}` allow even more customization, but that's outside the scope of this readme.
+
+In the future, some of these options might make it into the plugin itself.
 
 ```
 // Force open links in new tab.
@@ -20,7 +30,7 @@ add_filter( 'import_bookmarks_post_content', function( $post_content, $bookmark,
     $post_title    = sanitize_text_field( $bookmark['title'] );
     $post_content  = sanitize_text_field( $bookmark['note'] );
     $post_content .= "\n\n<a href='" . esc_url( $bookmark['uri'] ) .
-                     "' target='_blank' rel='noopener noreferrer'>" . $post_title . '</a>';
+        "' target='_blank' rel='noopener noreferrer'>" . $post_title . '</a>';
     $post_content  = trim( $post_content );
 
     return $post_content;
