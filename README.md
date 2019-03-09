@@ -18,12 +18,12 @@ This plugin, on its own, will **not** register a new Custom Post Type (nor modif
 Newly added bookmarks can be marked 'Published', 'Draft', 'Pending review' or 'Private'.
 
 ### Important
-Post dates are set to the date the bookmark was created. Monthly archives, etc., work just fine.
+**Post dates** are set to the date the bookmark was created. Monthly archives, etc., work just fine.
 
-Duplicated entries are not detected. A possible use case would be to periodically 'dump' all browser bookmarks into WordPress, then clear all of them from your browser—rinse, repeat.
+**Duplicated entries** are not detected. A **possible use case** would be to periodically 'dump' all browser bookmarks into WordPress, then clear all of them from your browser—rinse, repeat.
 
 ### Advanced: Modifying the Format of Imported Bookmarks
-Use the `import_bookmarks_post_content` filter to customize imported bookmarks' markup with only minimal PHP code. (Other than that, bookmarks, like all other posts, will be styled by your theme's CSS file[s].)
+Use the `import_bookmarks_post_content` filter to **customize imported bookmarks' markup** with only minimal PHP code. (Other than that, bookmarks, like all other posts, will be styled by your theme's CSS file[s].)
 
 Some examples of what's possible. (These would typically go into your [child] theme's `functions.php`.) Note: core hooks like `publish_{$post->post_type}` allow even more customization, but that's outside the scope of this readme.
 
