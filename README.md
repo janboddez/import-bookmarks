@@ -9,18 +9,23 @@ In WP Admin, go to 'Plugins > Add New', and search for 'import bookmarks'. Insta
 ## Usage
 In WP Admin, head over to 'Import > Import Bookmarks', select a bookmarks file (in **HTML format**, as exported from your browser of choice) to upload, and choose the destination post type and status.
 
-## Custom Post Types
+### Custom Post Types
 Bookmarks can be added as regular Posts or instances of a Custom Post Type (created through, e.g., [Custom Post UI](https://wordpress.org/plugins/custom-post-type-ui/), or another plugin).
 
 This plugin, on its own, will **not** register a new Custom Post Type (nor modify existing ones).
 
-## Statuses
+### Statuses
 Newly added bookmarks can be marked 'Published', 'Draft', 'Pending review' or 'Private'.
 
-## Modifying the Post Content Format of Imported Bookmarks
-Use the `import_bookmarks_post_content` filter to customize imported bookmarks' markup with only minimal PHP code.
+### Important
+Post dates are set to the date the bookmark was created. Monthly archives, etc., work just fine.
 
-Some examples of what's possible. (These would typically go into your (child) theme's `functions.php`.) Note: core hooks like `publish_{$post->post_type}` allow even more customization, but that's outside the scope of this readme.
+Duplicated entries are not detected. A possible use case would be to periodically 'dump' all browser bookmarks into WordPress, then clear all of them from your browser—rinse, repeat.
+
+### Advanced: Modifying the Format of Imported Bookmarks
+Use the `import_bookmarks_post_content` filter to customize imported bookmarks' markup with only minimal PHP code. (Other than that, bookmarks, like all other posts, will be styled by your theme's CSS file[s].)
+
+Some examples of what's possible. (These would typically go into your [child] theme's `functions.php`.) Note: core hooks like `publish_{$post->post_type}` allow even more customization, but that's outside the scope of this readme.
 
 In the future, some of these options might make it into the plugin itself.
 
