@@ -11,7 +11,7 @@ Import browser bookmarks into WordPress.
 Export bookmarks from your browser and import them as WordPress posts. Supports Custom Post Types.
 
 == Changelog ==
-
+ 
 === 0.2.4 ===
 Fixed translation support.
 

@@ -8,19 +8,21 @@
  * License URI: https://www.gnu.org/licenses/gpl-3.0.html
  * Text Domain: import-bookmarks
  * Domain Path: /languages
- * Version: 0.2.4
+ * Version: 0.2.5
  */
 
 namespace Import_Bookmarks;
 
-require_once dirname( __FILE__ ) . '/vendor/netscape-bookmark-parser/NetscapeBookmarkParser.php';
+if ( ! class_exists( '\NetscapeBookmarkParser' ) ) {
+	require_once dirname( __FILE__ ) . '/vendor/netscape-bookmark-parser/NetscapeBookmarkParser.php';
+}
 
 /**
  * Main plugin class and settings.
  */
 class Bookmarks_Importer {
 	/**
-	 * Holds WordPress default post types, minus 'post' itself.
+	 * WordPress' default post types, minus 'post' itself.
 	 *
 	 * @since 0.2.1
 	 */
@@ -89,7 +91,9 @@ class Bookmarks_Importer {
 	 * @since 0.1.0
 	 */
 	public function settings_page() {
-		$post_types = array_diff( get_post_types(), $this->default_post_types );
+		$options      = get_option( 'import_bookmarks', array() );
+		$post_types   = array_diff( get_post_types(), $this->default_post_types );
+		$post_formats = get_post_format_slugs();
 		?>
 		<div class="wrap">
 			<h1><?php _e( 'Import Bookmarks', 'import-bookmarks' ); ?></h1>
@@ -101,23 +105,37 @@ class Bookmarks_Importer {
 				<table class="form-table">
 					<tr valign="top">
 						<th scope="row"><label for="bookmarks-file"><?php _e( 'Bookmarks File', 'import-bookmarks' ); ?></label></th>
-						<td><input type="file" name="bookmarks_file" id="bookmarks-file"></td>
+						<td><input type="file" name="bookmarks_file" id="bookmarks-file">
+						<p class="description"><?php _e( 'Bookmarks HTML file to be imported.', 'import-bookmarks' ); ?></p></td>
 					</tr>
 					<tr valign="top">
 						<th scope="row"><label for="post-type"><?php _e( 'Post Type', 'import-bookmarks' ); ?></label></th>
 						<td><select name="post_type" id="post-type">
 							<?php foreach ( $post_types as $post_type ) : ?>
-								<option value="<?php $post_type = get_post_type_object( $post_type ); esc_attr_e( $post_type->name ); ?>"><?php echo esc_html( $post_type->labels->singular_name ); ?></option>
+								<option value="<?php $post_type = get_post_type_object( $post_type ); esc_attr_e( $post_type->name ); ?>" <?php ! empty( $options['post_type'] ) ? selected( $post_type->name, $options['post_type'] ) : ''; ?>>
+									<?php echo esc_html( $post_type->labels->singular_name ); ?>
+								</option>
 							<?php endforeach; ?>
-						</select></td>
+						</select>
+						<p class="description"><?php _e( 'Imported bookmarks will be of this type.', 'import-bookmarks' ); ?></p></td>
 					</tr>
 					<tr valign="top">
 						<th scope="row"><label for="post-status"><?php _e( 'Post Status', 'import-bookmarks' ); ?></label></th>
 						<td><select name="post_status" id="post-status">
 							<?php foreach ( $this->post_statuses as $post_status ) : ?>
-								<option value="<?php echo esc_attr( $post_status ); ?>"><?php esc_html_e( ucfirst( $post_status ) ); ?></option>
+								<option value="<?php echo esc_attr( $post_status ); ?>" <?php ! empty( $options['post_status'] ) ? selected( $post_status, $options['post_status'] ) : ''; ?>><?php esc_html_e( ucfirst( $post_status ) ); ?></option>
 							<?php endforeach; ?>
-						</select></td>
+						</select>
+						<p class="description"><?php _e( 'Imported bookmarks will receive this status.', 'import-bookmarks' ); ?></p></td>
+					</tr>
+					<tr valign="top">
+						<th scope="row"><label for="post-format"><?php _e( 'Post Format', 'import-bookmarks' ); ?></label></th>
+						<td><select name="post_format" id="post-format">
+							<?php foreach ( $post_formats as $post_format ) : ?>
+								<option value="<?php echo esc_attr( $post_format ); ?>" <?php ! empty( $options['post_format'] ) ? selected( $post_format, $options['post_format'] ) : ''; ?>><?php echo get_post_format_string( $post_format ); ?></option>
+							<?php endforeach; ?>
+						</select>
+						<p class="description"><?php _e( '&lsquo;Link&rsquo; is probably a good idea. Will only be applied when the chosen Post Type actually supports Post Formats.', 'import-bookmarks' ); ?></p></td>
 					</tr>
 				</table>
 
@@ -166,17 +184,36 @@ class Bookmarks_Importer {
 			wp_die( __( 'Something went wrong uploading the file.', 'import-bookmarks' ) );
 		}
 
-		$post_type  = 'post';
+		$options    = get_option( 'import_bookmarks', array() );
 		$post_types = array_diff( get_post_types(), $this->default_post_types );
+		$post_type  = 'post';
 
 		if ( ! empty( $_POST['post_type'] ) && in_array( $_POST['post_type'], $post_types ) ) {
 			$post_type = $_POST['post_type'];
+
+			// Remember.
+			$options['post_type'] = $post_type;
+			update_option( 'import_bookmarks', $options, false );
 		}
 
 		$post_status = 'publish';
 
 		if ( ! empty( $_POST['post_status'] ) && in_array( $_POST['post_status'], $this->post_statuses ) ) {
 			$post_status = $_POST['post_status'];
+
+			// Remember.
+			$options['post_status'] = $post_status;
+			update_option( 'import_bookmarks', $options, false );
+		}
+
+		$post_format = 'standard';
+
+		if ( ! empty( $_POST['post_format'] ) && in_array( $_POST['post_format'], get_post_format_slugs() ) ) {
+			$post_format = $_POST['post_format'];
+
+			// Remember.
+			$options['post_format'] = $post_format;
+			update_option( 'import_bookmarks', $options, false );
 		}
 
 		$parser    = new \NetscapeBookmarkParser();
@@ -204,8 +241,11 @@ class Bookmarks_Importer {
 			) );
 
 			if ( $post_id && post_type_supports( $post_type, 'custom-fields' ) ) {
-				// Also store actual URL, in a custom field.
 				update_post_meta( $post_id, 'import_bookmarks_uri', esc_url_raw( $bookmark['uri'] ) );
+			}
+
+			if ( $post_id && post_type_supports( $post_type, 'post-formats' ) ) {
+				set_post_format( $post_id, $post_format );
 			}
 		}
 
