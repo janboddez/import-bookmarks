@@ -74,6 +74,9 @@ add_filter( 'import_bookmarks_post_content', function( $post_content, $bookmark 
 
 ## Changelog
 
+### 0.2.5
+Added Post Formats support.
+
 ### 0.2.4
 Fixed translation support.
 
