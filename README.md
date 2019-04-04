@@ -1,7 +1,7 @@
 # Import Bookmarks
 Import browser bookmarks into WordPress.
 
-Export bookmarks from your browser and import them as WordPress posts. Supports Custom Post Types.
+Export bookmarks from your browser and import them as WordPress posts. Supports Custom Post Types and Post Formats.
 
 ## Installation
 In WP Admin, go to 'Plugins > Add New', and search for 'import bookmarks'. Install and activate. Or install from https://wordpress.org/plugins/import-bookmarks/.
