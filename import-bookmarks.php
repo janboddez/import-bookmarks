@@ -105,7 +105,7 @@ class Bookmarks_Importer {
 				<table class="form-table">
 					<tr valign="top">
 						<th scope="row"><label for="bookmarks-file"><?php _e( 'Bookmarks File', 'import-bookmarks' ); ?></label></th>
-						<td><input type="file" name="bookmarks_file" id="bookmarks-file">
+						<td><input type="file" name="bookmarks_file" id="bookmarks-file" accept=".html">
 						<p class="description"><?php _e( 'Bookmarks HTML file to be imported.', 'import-bookmarks' ); ?></p></td>
 					</tr>
 					<tr valign="top">
