@@ -114,45 +114,53 @@ class Bookmarks_Importer {
 				<table class="form-table">
 					<tr valign="top">
 						<th scope="row"><label for="bookmarks-file"><?php esc_html_e( 'Bookmarks File', 'import-bookmarks' ); ?></label></th>
-						<td><input type="file" name="bookmarks_file" id="bookmarks-file" accept="text/html">
-						<p class="description"><?php esc_html_e( 'Bookmarks HTML file to be imported.', 'import-bookmarks' ); ?></p></td>
+						<td>
+							<input type="file" name="bookmarks_file" id="bookmarks-file" accept="text/html">
+							<p class="description"><?php esc_html_e( 'Bookmarks HTML file to be imported.', 'import-bookmarks' ); ?></p>
+						</td>
 					</tr>
 
 					<tr valign="top">
 						<th scope="row"><label for="post-type"><?php esc_html_e( 'Post Type', 'import-bookmarks' ); ?></label></th>
-						<td><select name="post_type" id="post-type">
-							<?php
-							foreach ( $post_types as $post_type ) :
-								$post_type = get_post_type_object( $post_type );
-								?>
-								<option value="<?php $post_type->name; ?>" <?php ( ! empty( $options['post_type'] ) ? selected( $post_type->name, $options['post_type'] ) : '' ); ?>>
-									<?php echo esc_html( $post_type->labels->singular_name ); ?>
-								</option>
+						<td>
+							<select name="post_type" id="post-type">
 								<?php
-							endforeach;
-							?>
-						</select>
-						<p class="description"><?php esc_html_e( 'Imported bookmarks will be of this type.', 'import-bookmarks' ); ?></p></td>
+								foreach ( $post_types as $post_type ) :
+									$post_type = get_post_type_object( $post_type );
+									?>
+									<option value="<?php $post_type->name; ?>" <?php ( ! empty( $options['post_type'] ) ? selected( $post_type->name, $options['post_type'] ) : '' ); ?>>
+										<?php echo esc_html( $post_type->labels->singular_name ); ?>
+									</option>
+									<?php
+								endforeach;
+								?>
+							</select>
+							<p class="description"><?php esc_html_e( 'Imported bookmarks will be of this type.', 'import-bookmarks' ); ?></p>
+						</td>
 					</tr>
 
 					<tr valign="top">
 						<th scope="row"><label for="post-status"><?php esc_html_e( 'Post Status', 'import-bookmarks' ); ?></label></th>
-						<td><select name="post_status" id="post-status">
-							<?php foreach ( self::POST_STATUSES as $post_status ) : ?>
-								<option value="<?php echo esc_attr( $post_status ); ?>" <?php ( ! empty( $options['post_status'] ) ? selected( $post_status, $options['post_status'] ) : '' ); ?>><?php esc_html( ucfirst( $post_status ) ); ?></option>
-							<?php endforeach; ?>
-						</select>
-						<p class="description"><?php esc_html_e( 'Imported bookmarks will receive this status.', 'import-bookmarks' ); ?></p></td>
+						<td>
+							<select name="post_status" id="post-status">
+								<?php foreach ( self::POST_STATUSES as $post_status ) : ?>
+									<option value="<?php echo esc_attr( $post_status ); ?>" <?php ( ! empty( $options['post_status'] ) ? selected( $post_status, $options['post_status'] ) : '' ); ?>><?php echo esc_html( ucfirst( $post_status ) ); ?></option>
+								<?php endforeach; ?>
+							</select>
+							<p class="description"><?php esc_html_e( 'Imported bookmarks will receive this status.', 'import-bookmarks' ); ?></p>
+						</td>
 					</tr>
 
 					<tr valign="top">
 						<th scope="row"><label for="post-format"><?php esc_html_e( 'Post Format', 'import-bookmarks' ); ?></label></th>
-						<td><select name="post_format" id="post-format">
-							<?php foreach ( $post_formats as $post_format ) : ?>
-								<option value="<?php echo esc_attr( $post_format ); ?>" <?php ( ! empty( $options['post_format'] ) ? selected( $post_format, $options['post_format'] ) : '' ); ?>><?php echo esc_html( get_post_format_string( $post_format ) ); ?></option>
-							<?php endforeach; ?>
-						</select>
-						<p class="description"><?php esc_html_e( '&lsquo;Link&rsquo; is probably a good idea. Will only be applied when the chosen Post Type actually supports Post Formats.', 'import-bookmarks' ); ?></p></td>
+						<td>
+							<select name="post_format" id="post-format">
+								<?php foreach ( $post_formats as $post_format ) : ?>
+									<option value="<?php echo esc_attr( $post_format ); ?>" <?php ( ! empty( $options['post_format'] ) ? selected( $post_format, $options['post_format'] ) : '' ); ?>><?php echo esc_html( get_post_format_string( $post_format ) ); ?></option>
+								<?php endforeach; ?>
+							</select>
+							<p class="description"><?php esc_html_e( '&lsquo;Link&rsquo; is probably a good idea. Affects only Post Types that actually support Post Formats.', 'import-bookmarks' ); ?></p>
+						</td>
 					</tr>
 				</table>
 
@@ -163,7 +171,7 @@ class Bookmarks_Importer {
 		<?php
 		if ( ! empty( $_GET['_wpnonce'] ) && wp_verify_nonce( sanitize_key( $_GET['_wpnonce'] ), 'import-bookmarks-success' ) && ! empty( $_GET['message'] ) && 'success' === $_GET['message'] ) :
 			?>
-			<div class="notice notice-success">
+			<div class="notice notice-success is-dismissible">
 				<p><?php esc_html_e( 'Bookmarks imported!', 'import-bookmarks' ); ?></p>
 			</div>
 			<?php
@@ -238,6 +246,10 @@ class Bookmarks_Importer {
 
 		$parser    = new \NetscapeBookmarkParser();
 		$bookmarks = $parser->parseFile( $uploaded_file['file'] );
+
+		if ( empty( $bookmarks ) || ! is_array( $bookmarks ) ) {
+			wp_die( esc_html__( 'Empty or invalid bookmarks file.', 'import-bookmarks' ) );
+		}
 
 		foreach ( $bookmarks as $bookmark ) {
 			$post_title    = sanitize_text_field( $bookmark['title'] );
