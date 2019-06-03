@@ -14,8 +14,11 @@ Bookmarks can be added as regular Posts or instances of a Custom Post Type (crea
 
 This plugin, on its own, will **not** register a new Custom Post Type (nor modify existing ones).
 
-### Statuses
+### Post Statuses
 Newly added bookmarks can be marked 'Published', 'Draft', 'Pending review' or 'Private'.
+
+### Post Formats
+Newly added bookmarks can be given any [Post Format](https://developer.wordpress.org/themes/functionality/post-formats/). Note: it's your active theme that decides what this means for your site. If unsure, you'll probably want to use either 'Link' or 'Standard'.
 
 ### Important
 **Post dates** are set to the date the bookmark was created. Monthly archives, etc., work just fine.
@@ -74,8 +77,11 @@ add_filter( 'import_bookmarks_post_content', function( $post_content, $bookmark 
 
 ## Changelog
 
+### 0.2.6
+Additional bookmarks validation. Implemented code standards.
+
 ### 0.2.5
-Added Post Formats support.
+Added Post Formats support. Fixed readme.txt.
 
 ### 0.2.4
 Fixed translation support.
