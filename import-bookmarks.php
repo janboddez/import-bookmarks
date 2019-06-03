@@ -31,7 +31,7 @@ class Bookmarks_Importer {
 	/**
 	 * WordPress' default post types.
 	 *
-	 * @var array $default_post_types Default post types, minus 'post' itself.
+	 * @var array DEFAULT_POST_TYPES Default post types, minus 'post' itself.
 	 * @since 0.2.1
 	 */
 	private const DEFAULT_POST_TYPES = array(
@@ -49,7 +49,7 @@ class Bookmarks_Importer {
 	/**
 	 * Allowable post statuses.
 	 *
-	 * @var array $post_statuses Allowable post statuses.
+	 * @var array POST_STATUSES Allowable post statuses.
 	 * @since 0.2.1
 	 */
 	private const POST_STATUSES = array(
