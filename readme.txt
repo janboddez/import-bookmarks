@@ -1,7 +1,7 @@
 === Import Bookmarks ===
-Contributors: janboddez
+Contributors: janboddez, lotharthesavior
 Tags: bookmarks, favorites, import, importer
-Tested up to: 5.1
+Tested up to: 5.2
 License: GNU General Public License v3.0
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -11,6 +11,9 @@ Import browser bookmarks into WordPress.
 Export bookmarks from your browser and import them as WordPress posts. Supports Custom Post Types.
 
 == Changelog ==
+
+= 0.2.6 =
+Additional bookmarks validation. Implemented code standards.
 
 = 0.2.5 =
 Added support for Post Formats. Fixed readme.txt.
