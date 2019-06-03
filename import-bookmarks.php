@@ -14,12 +14,12 @@
 
 namespace Import_Bookmarks;
 
-/** Prevent direct access. */
+// Prevent direct access.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-/** Import the `NetscapeBookmarkParser` class. */
+// Import the `NetscapeBookmarkParser` class.
 if ( ! class_exists( '\NetscapeBookmarkParser' ) ) {
 	require_once dirname( __FILE__ ) . '/vendor/netscape-bookmark-parser/NetscapeBookmarkParser.php';
 }
@@ -32,7 +32,7 @@ class Bookmarks_Importer {
 	 * WordPress' default post types.
 	 *
 	 * @var array DEFAULT_POST_TYPES Default post types, minus 'post' itself.
-	 * @since 0.2.1
+	 * @since 0.2.6
 	 */
 	private const DEFAULT_POST_TYPES = array(
 		'page',
@@ -50,7 +50,7 @@ class Bookmarks_Importer {
 	 * Allowable post statuses.
 	 *
 	 * @var array POST_STATUSES Allowable post statuses.
-	 * @since 0.2.1
+	 * @since 0.2.6
 	 */
 	private const POST_STATUSES = array(
 		'publish',
@@ -219,7 +219,7 @@ class Bookmarks_Importer {
 		if ( ! empty( $_POST['post_type'] ) && in_array( $_POST['post_type'], $post_types, true ) ) {
 			$post_type = sanitize_text_field( wp_unslash( $_POST['post_type'] ) );
 
-			// Remember.
+			// Remember the chosen post type.
 			$options['post_type'] = $post_type;
 			update_option( 'import_bookmarks', $options, false );
 		}
@@ -229,7 +229,7 @@ class Bookmarks_Importer {
 		if ( ! empty( $_POST['post_status'] ) && in_array( $_POST['post_status'], self::POST_STATUSES, true ) ) {
 			$post_status = sanitize_text_field( wp_unslash( $_POST['post_status'] ) );
 
-			// Remember.
+			// Remember the chosen post status.
 			$options['post_status'] = $post_status;
 			update_option( 'import_bookmarks', $options, false );
 		}
@@ -239,7 +239,7 @@ class Bookmarks_Importer {
 		if ( ! empty( $_POST['post_format'] ) && in_array( $_POST['post_format'], get_post_format_slugs(), true ) ) {
 			$post_format = sanitize_text_field( wp_unslash( $_POST['post_format'] ) );
 
-			// Remember.
+			// Remember the chosen post format.
 			$options['post_format'] = $post_format;
 			update_option( 'import_bookmarks', $options, false );
 		}
