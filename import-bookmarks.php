@@ -7,12 +7,19 @@
  * License: General Public License v3.0
  * License URI: https://www.gnu.org/licenses/gpl-3.0.html
  * Text Domain: import-bookmarks
- * Domain Path: /languages
- * Version: 0.2.5
+ * Version: 0.2.6
+ *
+ * @package Import_Bookmarks
  */
 
 namespace Import_Bookmarks;
 
+/** Prevent direct access. */
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
+/** Import the `NetscapeBookmarkParser` class. */
 if ( ! class_exists( '\NetscapeBookmarkParser' ) ) {
 	require_once dirname( __FILE__ ) . '/vendor/netscape-bookmark-parser/NetscapeBookmarkParser.php';
 }
@@ -22,11 +29,12 @@ if ( ! class_exists( '\NetscapeBookmarkParser' ) ) {
  */
 class Bookmarks_Importer {
 	/**
-	 * WordPress' default post types, minus 'post' itself.
+	 * WordPress' default post types.
 	 *
+	 * @var array $default_post_types Default post types, minus 'post' itself.
 	 * @since 0.2.1
 	 */
-	private $default_post_types = array(
+	private const DEFAULT_POST_TYPES = array(
 		'page',
 		'attachment',
 		'revision',
@@ -41,9 +49,10 @@ class Bookmarks_Importer {
 	/**
 	 * Allowable post statuses.
 	 *
+	 * @var array $post_statuses Allowable post statuses.
 	 * @since 0.2.1
 	 */
-	private $post_statuses = array(
+	private const POST_STATUSES = array(
 		'publish',
 		'draft',
 		'pending',
@@ -92,50 +101,58 @@ class Bookmarks_Importer {
 	 */
 	public function settings_page() {
 		$options      = get_option( 'import_bookmarks', array() );
-		$post_types   = array_diff( get_post_types(), $this->default_post_types );
+		$post_types   = array_diff( get_post_types(), self::DEFAULT_POST_TYPES );
 		$post_formats = get_post_format_slugs();
 		?>
 		<div class="wrap">
-			<h1><?php _e( 'Import Bookmarks', 'import-bookmarks' ); ?></h1>
+			<h1><?php esc_html_e( 'Import Bookmarks', 'import-bookmarks' ); ?></h1>
 
 			<form action="admin-post.php" method="post" enctype="multipart/form-data">
-				<?php wp_nonce_field( 'import-bookmarks', 'import-bookmarks-nonce' ); ?>
+				<?php wp_nonce_field( 'import-bookmarks-run' ); ?>
 				<input type="hidden" name="action" value="import_bookmarks">
 
 				<table class="form-table">
 					<tr valign="top">
-						<th scope="row"><label for="bookmarks-file"><?php _e( 'Bookmarks File', 'import-bookmarks' ); ?></label></th>
+						<th scope="row"><label for="bookmarks-file"><?php esc_html_e( 'Bookmarks File', 'import-bookmarks' ); ?></label></th>
 						<td><input type="file" name="bookmarks_file" id="bookmarks-file" accept="text/html">
-						<p class="description"><?php _e( 'Bookmarks HTML file to be imported.', 'import-bookmarks' ); ?></p></td>
+						<p class="description"><?php esc_html_e( 'Bookmarks HTML file to be imported.', 'import-bookmarks' ); ?></p></td>
 					</tr>
+
 					<tr valign="top">
-						<th scope="row"><label for="post-type"><?php _e( 'Post Type', 'import-bookmarks' ); ?></label></th>
+						<th scope="row"><label for="post-type"><?php esc_html_e( 'Post Type', 'import-bookmarks' ); ?></label></th>
 						<td><select name="post_type" id="post-type">
-							<?php foreach ( $post_types as $post_type ) : ?>
-								<option value="<?php $post_type = get_post_type_object( $post_type ); esc_attr_e( $post_type->name ); ?>" <?php ! empty( $options['post_type'] ) ? selected( $post_type->name, $options['post_type'] ) : ''; ?>>
+							<?php
+							foreach ( $post_types as $post_type ) :
+								$post_type = get_post_type_object( $post_type );
+								?>
+								<option value="<?php $post_type->name; ?>" <?php ( ! empty( $options['post_type'] ) ? selected( $post_type->name, $options['post_type'] ) : '' ); ?>>
 									<?php echo esc_html( $post_type->labels->singular_name ); ?>
 								</option>
-							<?php endforeach; ?>
+								<?php
+							endforeach;
+							?>
 						</select>
-						<p class="description"><?php _e( 'Imported bookmarks will be of this type.', 'import-bookmarks' ); ?></p></td>
+						<p class="description"><?php esc_html_e( 'Imported bookmarks will be of this type.', 'import-bookmarks' ); ?></p></td>
 					</tr>
+
 					<tr valign="top">
-						<th scope="row"><label for="post-status"><?php _e( 'Post Status', 'import-bookmarks' ); ?></label></th>
+						<th scope="row"><label for="post-status"><?php esc_html_e( 'Post Status', 'import-bookmarks' ); ?></label></th>
 						<td><select name="post_status" id="post-status">
-							<?php foreach ( $this->post_statuses as $post_status ) : ?>
-								<option value="<?php echo esc_attr( $post_status ); ?>" <?php ! empty( $options['post_status'] ) ? selected( $post_status, $options['post_status'] ) : ''; ?>><?php esc_html_e( ucfirst( $post_status ) ); ?></option>
+							<?php foreach ( self::POST_STATUSES as $post_status ) : ?>
+								<option value="<?php echo esc_attr( $post_status ); ?>" <?php ( ! empty( $options['post_status'] ) ? selected( $post_status, $options['post_status'] ) : '' ); ?>><?php esc_html( ucfirst( $post_status ) ); ?></option>
 							<?php endforeach; ?>
 						</select>
-						<p class="description"><?php _e( 'Imported bookmarks will receive this status.', 'import-bookmarks' ); ?></p></td>
+						<p class="description"><?php esc_html_e( 'Imported bookmarks will receive this status.', 'import-bookmarks' ); ?></p></td>
 					</tr>
+
 					<tr valign="top">
-						<th scope="row"><label for="post-format"><?php _e( 'Post Format', 'import-bookmarks' ); ?></label></th>
+						<th scope="row"><label for="post-format"><?php esc_html_e( 'Post Format', 'import-bookmarks' ); ?></label></th>
 						<td><select name="post_format" id="post-format">
 							<?php foreach ( $post_formats as $post_format ) : ?>
-								<option value="<?php echo esc_attr( $post_format ); ?>" <?php ! empty( $options['post_format'] ) ? selected( $post_format, $options['post_format'] ) : ''; ?>><?php echo get_post_format_string( $post_format ); ?></option>
+								<option value="<?php echo esc_attr( $post_format ); ?>" <?php ( ! empty( $options['post_format'] ) ? selected( $post_format, $options['post_format'] ) : '' ); ?>><?php echo esc_html( get_post_format_string( $post_format ) ); ?></option>
 							<?php endforeach; ?>
 						</select>
-						<p class="description"><?php _e( '&lsquo;Link&rsquo; is probably a good idea. Will only be applied when the chosen Post Type actually supports Post Formats.', 'import-bookmarks' ); ?></p></td>
+						<p class="description"><?php esc_html_e( '&lsquo;Link&rsquo; is probably a good idea. Will only be applied when the chosen Post Type actually supports Post Formats.', 'import-bookmarks' ); ?></p></td>
 					</tr>
 				</table>
 
@@ -143,11 +160,14 @@ class Bookmarks_Importer {
 			</form>
 		</div>
 
-		<?php if ( ! empty( $_GET['message'] ) && 'success' === $_GET['message'] ) : ?>
+		<?php
+		if ( ! empty( $_GET['_wpnonce'] ) && wp_verify_nonce( sanitize_key( $_GET['_wpnonce'] ), 'import-bookmarks-success' ) && ! empty( $_GET['message'] ) && 'success' === $_GET['message'] ) :
+			?>
 			<div class="notice notice-success">
-				<p><?php _e( 'Bookmarks imported!', 'import-bookmarks' ); ?></p>
+				<p><?php esc_html_e( 'Bookmarks imported!', 'import-bookmarks' ); ?></p>
 			</div>
-		<?php endif;
+			<?php
+		endif;
 	}
 
 	/**
@@ -157,39 +177,39 @@ class Bookmarks_Importer {
 	 */
 	public function import() {
 		if ( ! current_user_can( 'import' ) ) {
-			wp_die( __( 'You have insufficient permissions to access this page.', 'import-bookmarks' ) );
+			wp_die( esc_html__( 'You have insufficient permissions to access this page.', 'import-bookmarks' ) );
 		}
 
-		if ( ! isset( $_POST['import-bookmarks-nonce'] ) || ! wp_verify_nonce( $_POST['import-bookmarks-nonce'], 'import-bookmarks' ) ) {
-			wp_die( __( 'This page should not be accessed directly.', 'import-bookmarks' ) );
+		if ( ! isset( $_POST['_wpnonce'] ) || ! wp_verify_nonce( sanitize_key( $_POST['_wpnonce'] ), 'import-bookmarks-run' ) ) {
+			wp_die( esc_html__( 'This page should not be accessed directly.', 'import-bookmarks' ) );
 		}
 
-		if ( empty( $_FILES['bookmarks_file'] ) || 0 === $_FILES['bookmarks_file']['size'] ) {
-			wp_die( __( 'Something went wrong uploading the file.', 'import-bookmarks' ) );
+		if ( empty( $_FILES['bookmarks_file'] ) || empty( $_FILES['bookmarks_file']['size'] ) ) {
+			wp_die( esc_html__( 'Something went wrong uploading the file.', 'import-bookmarks' ) );
 		}
 
-		$file_type = wp_check_filetype( basename( $_FILES['bookmarks_file']['name'] ) );
+		$bookmarks_file = wp_unslash( $_FILES['bookmarks_file'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+		$file_type      = wp_check_filetype( basename( $bookmarks_file['name'] ) );
 
 		if ( 'text/html' !== $file_type['type'] ) {
-			wp_die( __( 'Unsupported file type.', 'import-bookmarks' ) );
+			wp_die( esc_html__( 'Unsupported file type.', 'import-bookmarks' ) );
 		}
 
 		if ( ! function_exists( 'wp_handle_upload' ) ) {
-			require_once( ABSPATH . 'wp-admin/includes/file.php' );
+			require_once ABSPATH . 'wp-admin/includes/file.php';
 		}
 
-		$uploaded_file = wp_handle_upload( $_FILES['bookmarks_file'], array( 'test_form' => false ) );
+		$uploaded_file = wp_handle_upload( $bookmarks_file, array( 'test_form' => false ) );
 
 		if ( empty( $uploaded_file['file'] ) || ! is_string( $uploaded_file['file'] ) ) {
-			wp_die( __( 'Something went wrong uploading the file.', 'import-bookmarks' ) );
+			wp_die( esc_html__( 'Something went wrong uploading the file.', 'import-bookmarks' ) );
 		}
 
-		$options    = get_option( 'import_bookmarks', array() );
-		$post_types = array_diff( get_post_types(), $this->default_post_types );
-		$post_type  = 'post';
+		$options   = get_option( 'import_bookmarks', array() );
+		$post_type = 'post';
 
-		if ( ! empty( $_POST['post_type'] ) && in_array( $_POST['post_type'], $post_types ) ) {
-			$post_type = $_POST['post_type'];
+		if ( ! empty( $_POST['post_type'] ) && in_array( $_POST['post_type'], $post_types, true ) ) {
+			$post_type = sanitize_text_field( wp_unslash( $_POST['post_type'] ) );
 
 			// Remember.
 			$options['post_type'] = $post_type;
@@ -198,8 +218,8 @@ class Bookmarks_Importer {
 
 		$post_status = 'publish';
 
-		if ( ! empty( $_POST['post_status'] ) && in_array( $_POST['post_status'], $this->post_statuses ) ) {
-			$post_status = $_POST['post_status'];
+		if ( ! empty( $_POST['post_status'] ) && in_array( $_POST['post_status'], self::POST_STATUSES, true ) ) {
+			$post_status = sanitize_text_field( wp_unslash( $_POST['post_status'] ) );
 
 			// Remember.
 			$options['post_status'] = $post_status;
@@ -208,8 +228,8 @@ class Bookmarks_Importer {
 
 		$post_format = 'standard';
 
-		if ( ! empty( $_POST['post_format'] ) && in_array( $_POST['post_format'], get_post_format_slugs() ) ) {
-			$post_format = $_POST['post_format'];
+		if ( ! empty( $_POST['post_format'] ) && in_array( $_POST['post_format'], get_post_format_slugs(), true ) ) {
+			$post_format = sanitize_text_field( wp_unslash( $_POST['post_format'] ) );
 
 			// Remember.
 			$options['post_format'] = $post_format;
@@ -232,13 +252,15 @@ class Bookmarks_Importer {
 			 */
 			$post_content = apply_filters( 'import_bookmarks_post_content', $post_content, $bookmark, $post_type );
 
-			$post_id = wp_insert_post( array(
-				'post_title'   => $post_title,
-				'post_content' => $post_content,
-				'post_status'  => $post_status,
-				'post_type'    => $post_type,
-				'post_date'    => get_date_from_gmt( date( 'Y-m-d H:i:s', $bookmark['time'] ), 'Y-m-d H:i:s' ),
-			) );
+			$post_id = wp_insert_post(
+				array(
+					'post_title'   => $post_title,
+					'post_content' => $post_content,
+					'post_status'  => $post_status,
+					'post_type'    => $post_type,
+					'post_date'    => get_date_from_gmt( date( 'Y-m-d H:i:s', $bookmark['time'] ), 'Y-m-d H:i:s' ),
+				)
+			);
 
 			if ( $post_id && post_type_supports( $post_type, 'custom-fields' ) ) {
 				update_post_meta( $post_id, 'import_bookmarks_uri', esc_url_raw( $bookmark['uri'] ) );
@@ -249,7 +271,7 @@ class Bookmarks_Importer {
 			}
 		}
 
-		wp_redirect( admin_url( 'tools.php?page=import-bookmarks&message=success' ) );
+		wp_safe_redirect( admin_url( 'tools.php?page=import-bookmarks&message=success&_wpnonce=' . wp_create_nonce( 'import-bookmarks-success' ) ) );
 		exit;
 	}
 }
