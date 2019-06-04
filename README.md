@@ -75,6 +75,11 @@ add_filter( 'import_bookmarks_post_content', function( $post_content, $bookmark 
 }, 10, 2 );
 ```
 
+## Credits
+Icon, Copyright 2016 Nick Roach  
+Licensed under the terms of the GNU GPL, Version 2  
+Source: https://www.elegantthemes.com/blog/freebie-of-the-week/beautiful-flat-icons-for-free
+
 ## Changelog
 
 ### 0.2.6

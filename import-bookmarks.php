@@ -7,7 +7,7 @@
  * License: General Public License v3.0
  * License URI: https://www.gnu.org/licenses/gpl-3.0.html
  * Text Domain: import-bookmarks
- * Version: 0.2.6
+ * Version: 0.2.7
  *
  * @package Import_Bookmarks
  */
