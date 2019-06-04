@@ -34,7 +34,7 @@ class Bookmarks_Importer {
 	 * @var array DEFAULT_POST_TYPES Default post types, minus 'post' itself.
 	 * @since 0.2.6
 	 */
-	private const DEFAULT_POST_TYPES = array(
+	const DEFAULT_POST_TYPES = array(
 		'page',
 		'attachment',
 		'revision',
@@ -52,7 +52,7 @@ class Bookmarks_Importer {
 	 * @var array POST_STATUSES Allowable post statuses.
 	 * @since 0.2.6
 	 */
-	private const POST_STATUSES = array(
+	const POST_STATUSES = array(
 		'publish',
 		'draft',
 		'pending',
@@ -159,7 +159,7 @@ class Bookmarks_Importer {
 									<option value="<?php echo esc_attr( $post_format ); ?>" <?php ( ! empty( $options['post_format'] ) ? selected( $post_format, $options['post_format'] ) : '' ); ?>><?php echo esc_html( get_post_format_string( $post_format ) ); ?></option>
 								<?php endforeach; ?>
 							</select>
-							<p class="description"><?php esc_html_e( '&lsquo;Link&rsquo; is probably a good idea. Affects only Post Types that actually support Post Formats.', 'import-bookmarks' ); ?></p>
+							<p class="description"><?php esc_html_e( 'Affects only Post Types that actually support Post Formats. Your active theme decides how different Post Formats are displayed. Regardless, &lsquo;Link&rsquo; is probably a good idea.', 'import-bookmarks' ); ?></p>
 						</td>
 					</tr>
 				</table>
@@ -207,13 +207,16 @@ class Bookmarks_Importer {
 			require_once ABSPATH . 'wp-admin/includes/file.php';
 		}
 
+		// Let WordPress handle the uploaded file.
 		$uploaded_file = wp_handle_upload( $bookmarks_file, array( 'test_form' => false ) );
 
 		if ( empty( $uploaded_file['file'] ) || ! is_string( $uploaded_file['file'] ) ) {
 			wp_die( esc_html__( 'Something went wrong uploading the file.', 'import-bookmarks' ) );
 		}
 
-		$options   = get_option( 'import_bookmarks', array() );
+		$options = get_option( 'import_bookmarks', array() );
+
+		// Default post type.
 		$post_type = 'post';
 
 		if ( ! empty( $_POST['post_type'] ) && in_array( $_POST['post_type'], $post_types, true ) ) {
@@ -224,6 +227,7 @@ class Bookmarks_Importer {
 			update_option( 'import_bookmarks', $options, false );
 		}
 
+		// Default post status.
 		$post_status = 'publish';
 
 		if ( ! empty( $_POST['post_status'] ) && in_array( $_POST['post_status'], self::POST_STATUSES, true ) ) {
@@ -234,6 +238,7 @@ class Bookmarks_Importer {
 			update_option( 'import_bookmarks', $options, false );
 		}
 
+		// Default post format.
 		$post_format = 'standard';
 
 		if ( ! empty( $_POST['post_format'] ) && in_array( $_POST['post_format'], get_post_format_slugs(), true ) ) {

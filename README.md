@@ -18,7 +18,7 @@ This plugin, on its own, will **not** register a new Custom Post Type (nor modif
 Newly added bookmarks can be marked 'Published', 'Draft', 'Pending review' or 'Private'.
 
 ### Post Formats
-Newly added bookmarks can be given any [Post Format](https://developer.wordpress.org/themes/functionality/post-formats/). Note: it's your active theme that decides what this means for your site. If unsure, you'll probably want to use either 'Link' or 'Standard'.
+Newly added bookmarks can be given any [Post Format](https://developer.wordpress.org/themes/functionality/post-formats/). Note: it's your active theme that decides what this means for your site. If unsure, you'll probably want to use either 'Link' or 'Standard'. Lastly, only Post Types that support Post Formats are actually affected.
 
 ### Important
 **Post dates** are set to the date the bookmark was created. Monthly archives, etc., work just fine.
