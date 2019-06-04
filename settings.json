@@ -3,5 +3,5 @@
 	"editor.insertSpaces": false,
 	"editor.detectIndentation": false,
 	"phpcs.enable": true,
-	"phpcs.standard": "phpcs.xml",
+	"phpcs.standard": "phpcs.xml"
 }
