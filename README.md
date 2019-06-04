@@ -79,29 +79,3 @@ add_filter( 'import_bookmarks_post_content', function( $post_content, $bookmark 
 Icon, Copyright 2016 Nick Roach  
 Licensed under the terms of the GNU GPL, Version 2  
 Source: https://www.elegantthemes.com/blog/freebie-of-the-week/beautiful-flat-icons-for-free
-
-## Changelog
-
-### 0.2.6
-Additional bookmarks validation. Implemented code standards.
-
-### 0.2.5
-Added Post Formats support. Fixed readme.txt.
-
-### 0.2.4
-Fixed translation support.
-
-### 0.2.3
-Removed call to `set_time_limit()`. Updated documentation.
-
-### 0.2.2
-Modified the `import_bookmarks_post_content` filter to accept a 3rd argument.
-
-### 0.2.1
-Fixed error handling. Added `import_bookmarks_post_content` filter hook, to allow for custom bookmark markup.
-
-### 0.2
-Added translation functionality.
-
-### 0.1
-Initial release.
