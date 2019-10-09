@@ -2,16 +2,16 @@
 # This file is distributed under the same license as the Import Bookmarks plugin.
 msgid ""
 msgstr ""
-"Project-Id-Version: Import Bookmarks 0.2.6\n"
+"Project-Id-Version: Import Bookmarks 0.2.8\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/import-bookmarks\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2019-06-03T02:34:24+02:00\n"
-"PO-Revision-Date: 2019-06-03T02:34:24+02:00\n"
-"X-Generator: WP-CLI 2.0.1\n"
+"POT-Creation-Date: 2019-10-09T21:49:37+02:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.2.0\n"
 "X-Domain: import-bookmarks\n"
 
 #. Plugin Name of the plugin
@@ -63,7 +63,7 @@ msgid "Post Format"
 msgstr ""
 
 #: import-bookmarks.php:162
-msgid "&lsquo;Link&rsquo; is probably a good idea. Affects only Post Types that actually support Post Formats."
+msgid "Affects only Post Types that actually support Post Formats. Your active theme decides how different Post Formats are displayed. Regardless, &lsquo;Link&rsquo; is probably a good idea."
 msgstr ""
 
 #: import-bookmarks.php:175
@@ -79,14 +79,10 @@ msgid "This page should not be accessed directly."
 msgstr ""
 
 #: import-bookmarks.php:196
-#: import-bookmarks.php:213
+#: import-bookmarks.php:212
 msgid "Something went wrong uploading the file."
 msgstr ""
 
-#: import-bookmarks.php:203
-msgid "Unsupported file type."
-msgstr ""
-
-#: import-bookmarks.php:251
+#: import-bookmarks.php:257
 msgid "Empty or invalid bookmarks file."
 msgstr ""
