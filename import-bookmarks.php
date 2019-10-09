@@ -7,7 +7,7 @@
  * License: General Public License v3.0
  * License URI: https://www.gnu.org/licenses/gpl-3.0.html
  * Text Domain: import-bookmarks
- * Version: 0.2.7
+ * Version: 0.2.8
  *
  * @package Import_Bookmarks
  */
@@ -29,7 +29,7 @@ if ( ! class_exists( '\NetscapeBookmarkParser' ) ) {
  */
 class Bookmarks_Importer {
 	/**
-	 * WordPress' default post types.
+	 * WordPress' default post types, sans 'post'.
 	 *
 	 * @var array DEFAULT_POST_TYPES Default post types, minus 'post' itself.
 	 * @since 0.2.6
@@ -126,10 +126,10 @@ class Bookmarks_Importer {
 							<select name="post_type" id="post-type">
 								<?php
 								foreach ( $post_types as $post_type ) :
-									$post_type = get_post_type_object( $post_type );
+									$post_type_object = get_post_type_object( $post_type );
 									?>
-									<option value="<?php $post_type->name; ?>" <?php ( ! empty( $options['post_type'] ) ? selected( $post_type->name, $options['post_type'] ) : '' ); ?>>
-										<?php echo esc_html( $post_type->labels->singular_name ); ?>
+									<option value="<?php echo esc_attr( $post_type ); ?>" <?php ( ! empty( $options['post_type'] ) ? selected( $post_type, $options['post_type'] ) : '' ); ?>>
+										<?php echo esc_html( $post_type_object->labels->singular_name ); ?>
 									</option>
 									<?php
 								endforeach;
@@ -192,35 +192,36 @@ class Bookmarks_Importer {
 			wp_die( esc_html__( 'This page should not be accessed directly.', 'import-bookmarks' ) );
 		}
 
-		if ( empty( $_FILES['bookmarks_file'] ) || empty( $_FILES['bookmarks_file']['size'] ) ) {
+		if ( empty( $_FILES['bookmarks_file'] ) ) {
 			wp_die( esc_html__( 'Something went wrong uploading the file.', 'import-bookmarks' ) );
 		}
 
-		$bookmarks_file = wp_unslash( $_FILES['bookmarks_file'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-		$file_type      = wp_check_filetype( basename( $bookmarks_file['name'] ) );
-
-		if ( 'text/html' !== $file_type['type'] ) {
-			wp_die( esc_html__( 'Unsupported file type.', 'import-bookmarks' ) );
-		}
-
-		if ( ! function_exists( 'wp_handle_upload' ) ) {
-			require_once ABSPATH . 'wp-admin/includes/file.php';
-		}
-
 		// Let WordPress handle the uploaded file.
-		$uploaded_file = wp_handle_upload( $bookmarks_file, array( 'test_form' => false ) );
+		$uploaded_file = wp_handle_upload(
+			$_FILES['bookmarks_file'], // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash
+			array(
+				'test_form' => false,
+				'mimes'     => array( 'htm|html' => 'text/html' ),
+			)
+		);
 
-		if ( empty( $uploaded_file['file'] ) || ! is_string( $uploaded_file['file'] ) ) {
+		if ( ! empty( $uploaded_file['error'] ) && is_string( $uploaded_file['error'] ) ) {
+			// `wp_handle_upload()` returned an error.
+			wp_die( esc_html( $uploaded_file['error'] ) );
+		} elseif ( empty( $uploaded_file['file'] ) || ! is_string( $uploaded_file['file'] ) ) {
 			wp_die( esc_html__( 'Something went wrong uploading the file.', 'import-bookmarks' ) );
 		}
 
 		$options = get_option( 'import_bookmarks', array() );
 
+		// Allowed post types.
+		$post_types = array_diff( get_post_types(), self::DEFAULT_POST_TYPES );
+
 		// Default post type.
 		$post_type = 'post';
 
-		if ( ! empty( $_POST['post_type'] ) && in_array( $_POST['post_type'], $post_types, true ) ) {
-			$post_type = sanitize_text_field( wp_unslash( $_POST['post_type'] ) );
+		if ( ! empty( $_POST['post_type'] ) && in_array( wp_unslash( $_POST['post_type'] ), $post_types, true ) ) {
+			$post_type = wp_unslash( $_POST['post_type'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 
 			// Remember the chosen post type.
 			$options['post_type'] = $post_type;
@@ -230,8 +231,8 @@ class Bookmarks_Importer {
 		// Default post status.
 		$post_status = 'publish';
 
-		if ( ! empty( $_POST['post_status'] ) && in_array( $_POST['post_status'], self::POST_STATUSES, true ) ) {
-			$post_status = sanitize_text_field( wp_unslash( $_POST['post_status'] ) );
+		if ( ! empty( $_POST['post_status'] ) && in_array( wp_unslash( $_POST['post_status'] ), self::POST_STATUSES, true ) ) {
+			$post_status = wp_unslash( $_POST['post_status'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 
 			// Remember the chosen post status.
 			$options['post_status'] = $post_status;
@@ -241,8 +242,8 @@ class Bookmarks_Importer {
 		// Default post format.
 		$post_format = 'standard';
 
-		if ( ! empty( $_POST['post_format'] ) && in_array( $_POST['post_format'], get_post_format_slugs(), true ) ) {
-			$post_format = sanitize_text_field( wp_unslash( $_POST['post_format'] ) );
+		if ( ! empty( $_POST['post_format'] ) && in_array( wp_unslash( $_POST['post_format'] ), get_post_format_slugs(), true ) ) {
+			$post_format = wp_unslash( $_POST['post_format'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 
 			// Remember the chosen post format.
 			$options['post_format'] = $post_format;
