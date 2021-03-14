@@ -7,7 +7,7 @@
  * License: General Public License v3.0
  * License URI: https://www.gnu.org/licenses/gpl-3.0.html
  * Text Domain: import-bookmarks
- * Version: 0.2.8
+ * Version: 0.2.9
  *
  * @package Import_Bookmarks
  */
@@ -276,7 +276,7 @@ class Bookmarks_Importer {
 					'post_content' => $post_content,
 					'post_status'  => $post_status,
 					'post_type'    => $post_type,
-					'post_date'    => get_date_from_gmt( date( 'Y-m-d H:i:s', $bookmark['time'] ), 'Y-m-d H:i:s' ),
+					'post_date'    => get_date_from_gmt( date( 'Y-m-d H:i:s', $bookmark['time'] ), 'Y-m-d H:i:s' ), // phpcs:ignore WordPress.DateTime.RestrictedFunctions.date_date
 				)
 			);
 
