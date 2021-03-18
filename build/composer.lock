@@ -1,0 +1,133 @@
+{
+    "_readme": [
+        "This file locks the dependencies of your project to a known state",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
+        "This file is @generated automatically"
+    ],
+    "content-hash": "d013dec2d759e7ff50264eca7734bd52",
+    "packages": [
+        {
+            "name": "psr/log",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/php-fig/log.git",
+                "reference": "a18c1e692e02b84abbafe4856c3cd7cc6903908c"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/php-fig/log/zipball/a18c1e692e02b84abbafe4856c3cd7cc6903908c",
+                "reference": "a18c1e692e02b84abbafe4856c3cd7cc6903908c",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.0"
+            },
+            "default-branch": true,
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.1.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Psr\\Log\\": "Psr/Log/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "PHP-FIG",
+                    "homepage": "https://www.php-fig.org/"
+                }
+            ],
+            "description": "Common interface for logging libraries",
+            "homepage": "https://github.com/php-fig/log",
+            "keywords": [
+                "log",
+                "psr",
+                "psr-3"
+            ],
+            "support": {
+                "source": "https://github.com/php-fig/log/tree/master"
+            },
+            "time": "2021-03-02T15:02:34+00:00"
+        },
+        {
+            "name": "shaarli/netscape-bookmark-parser",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/shaarli/netscape-bookmark-parser.git",
+                "reference": "396048b120c85e5f6bc76f9102e59ba739d937a1"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/shaarli/netscape-bookmark-parser/zipball/396048b120c85e5f6bc76f9102e59ba739d937a1",
+                "reference": "396048b120c85e5f6bc76f9102e59ba739d937a1",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.1",
+                "psr/log": "^1.1"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^7.0 || ^8.0 || ^9.0",
+                "squizlabs/php_codesniffer": "^3.5"
+            },
+            "default-branch": true,
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "NetscapeBookmarkParser.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Kafene",
+                    "email": "io@kafene.org",
+                    "homepage": "https://github.com/kafene",
+                    "role": "Developer"
+                },
+                {
+                    "name": "VirtualTam",
+                    "email": "virtualtam@flibidi.net",
+                    "homepage": "https://github.com/virtualtam",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Generic Netscape bookmark parser",
+            "homepage": "https://github.com/shaarli/netscape-bookmark-parser",
+            "keywords": [
+                "bookmark",
+                "link",
+                "netscape",
+                "parse"
+            ],
+            "support": {
+                "issues": "https://github.com/shaarli/netscape-bookmark-parser/issues",
+                "source": "https://github.com/shaarli/netscape-bookmark-parser/tree/master"
+            },
+            "time": "2021-02-22T08:23:39+00:00"
+        }
+    ],
+    "packages-dev": [],
+    "aliases": [],
+    "minimum-stability": "dev",
+    "stability-flags": {
+        "shaarli/netscape-bookmark-parser": 20
+    },
+    "prefer-stable": false,
+    "prefer-lowest": false,
+    "platform": [],
+    "platform-dev": [],
+    "plugin-api-version": "2.0.0"
+}

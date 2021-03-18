@@ -18,6 +18,9 @@ Source: https://www.elegantthemes.com/blog/freebie-of-the-week/beautiful-flat-ic
 
 == Changelog ==
 
+= 0.3.0 =
+Update Netscape Bookmark Parser.
+
 = 0.2.8 =
 Fixed import for Windows servers. Fixed import as custom post type.
 

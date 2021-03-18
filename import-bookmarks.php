@@ -2,12 +2,13 @@
 /**
  * Plugin Name: Import Bookmarks
  * Description: Import browser bookmarks as WordPress posts.
- * Author: Jan Boddez
- * Author URI: https://janboddez.tech/
- * License: General Public License v3.0
+ * Plugin URI:  https://jan.boddez.net/wordpress/import-bookmarks
+ * Author:      Jan Boddez
+ * Author URI:  https://jan.boddez.net/
+ * License:     General Public License v3.0
  * License URI: https://www.gnu.org/licenses/gpl-3.0.html
  * Text Domain: import-bookmarks
- * Version: 0.2.9
+ * Version:     0.3.0
  *
  * @package Import_Bookmarks
  */
@@ -19,10 +20,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-// Import the `NetscapeBookmarkParser` class.
-if ( ! class_exists( '\NetscapeBookmarkParser' ) ) {
-	require_once dirname( __FILE__ ) . '/vendor/netscape-bookmark-parser/NetscapeBookmarkParser.php';
-}
+require_once dirname( __FILE__ ) . '/build/vendor/scoper-autoload.php';
 
 /**
  * Main plugin class and settings.
@@ -32,6 +30,7 @@ class Bookmarks_Importer {
 	 * WordPress' default post types, sans 'post'.
 	 *
 	 * @var array DEFAULT_POST_TYPES Default post types, minus 'post' itself.
+	 *
 	 * @since 0.2.6
 	 */
 	const DEFAULT_POST_TYPES = array(
@@ -44,12 +43,14 @@ class Bookmarks_Importer {
 		'user_request',
 		'oembed_cache',
 		'wp_block',
+		'coblocks_pattern',
 	);
 
 	/**
 	 * Allowable post statuses.
 	 *
 	 * @var array POST_STATUSES Allowable post statuses.
+	 *
 	 * @since 0.2.6
 	 */
 	const POST_STATUSES = array(
@@ -62,9 +63,9 @@ class Bookmarks_Importer {
 	/**
 	 * Registers actions.
 	 *
-	 * @since 0.1.0
+	 * @since 0.3.0
 	 */
-	public function __construct() {
+	public function register() {
 		add_action( 'plugins_loaded', array( $this, 'load_textdomain' ) );
 		add_action( 'admin_menu', array( $this, 'create_menu' ) );
 		add_action( 'admin_post_import_bookmarks', array( $this, 'import' ) );
@@ -159,7 +160,15 @@ class Bookmarks_Importer {
 									<option value="<?php echo esc_attr( $post_format ); ?>" <?php ( ! empty( $options['post_format'] ) ? selected( $post_format, $options['post_format'] ) : '' ); ?>><?php echo esc_html( get_post_format_string( $post_format ) ); ?></option>
 								<?php endforeach; ?>
 							</select>
-							<p class="description"><?php esc_html_e( 'Affects only Post Types that actually support Post Formats. Your active theme decides how different Post Formats are displayed. Regardless, &lsquo;Link&rsquo; is probably a good idea.', 'import-bookmarks' ); ?></p>
+							<p class="description"><?php esc_html_e( 'Affects only Post Types that actually support Post Formats. Your active theme decides how different Post Formats are displayed. Regardless, &ldquo;Link&rdquo; is probably a good idea.', 'import-bookmarks' ); ?></p>
+						</td>
+					</tr>
+
+					<tr valign="top">
+						<th scope="row"><?php esc_html_e( 'Skip Duplicates', 'import-bookmarks' ); ?></th>
+						<td>
+							<label><input type="checkbox" name="skip_duplicates" value="1" <?php checked( ! empty( $options['skip_duplicates'] ) ); ?>> <?php esc_html_e( 'Skip duplicates', 'import-bookmarks' ); ?></label>
+							<p class="description"><?php esc_html_e( 'Prevent importing the same bookmark twice. Only the selected Post Type is taken into account. (Note: For this to work, the Post Type must support Custom Fields!)', 'import-bookmarks' ); ?></p>
 						</td>
 					</tr>
 				</table>
@@ -169,12 +178,15 @@ class Bookmarks_Importer {
 		</div>
 
 		<?php
-		if ( ! empty( $_GET['_wpnonce'] ) && wp_verify_nonce( sanitize_key( $_GET['_wpnonce'] ), 'import-bookmarks-success' ) && ! empty( $_GET['message'] ) && 'success' === $_GET['message'] ) :
-			?>
-			<div class="notice notice-success is-dismissible">
-				<p><?php esc_html_e( 'Bookmarks imported!', 'import-bookmarks' ); ?></p>
-			</div>
-			<?php
+		if ( ! empty( $_GET['_wpnonce'] ) && wp_verify_nonce( sanitize_key( $_GET['_wpnonce'] ), 'import-bookmarks-success' ) ) :
+			if ( isset( $_GET['imported'] ) && ctype_digit( $_GET['imported'] ) && isset( $_GET['skipped'] ) && ctype_digit( $_GET['skipped'] ) ) : // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+				?>
+				<div class="notice notice-success is-dismissible">
+					<?php /* translators: %1$d number of imported bookmarks %2$d number of skipped bookmarks */ ?>
+					<p><?php printf( esc_html__( '%1$d bookmarks imported (and %2$d skipped)!', 'import-bookmarks' ), intval( $_GET['imported'] ), intval( $_GET['skipped'] ) ); ?></p>
+				</div>
+				<?php
+			endif;
 		endif;
 	}
 
@@ -222,10 +234,6 @@ class Bookmarks_Importer {
 
 		if ( ! empty( $_POST['post_type'] ) && in_array( wp_unslash( $_POST['post_type'] ), $post_types, true ) ) {
 			$post_type = wp_unslash( $_POST['post_type'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-
-			// Remember the chosen post type.
-			$options['post_type'] = $post_type;
-			update_option( 'import_bookmarks', $options, false );
 		}
 
 		// Default post status.
@@ -233,10 +241,6 @@ class Bookmarks_Importer {
 
 		if ( ! empty( $_POST['post_status'] ) && in_array( wp_unslash( $_POST['post_status'] ), self::POST_STATUSES, true ) ) {
 			$post_status = wp_unslash( $_POST['post_status'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-
-			// Remember the chosen post status.
-			$options['post_status'] = $post_status;
-			update_option( 'import_bookmarks', $options, false );
 		}
 
 		// Default post format.
@@ -244,23 +248,66 @@ class Bookmarks_Importer {
 
 		if ( ! empty( $_POST['post_format'] ) && in_array( wp_unslash( $_POST['post_format'] ), get_post_format_slugs(), true ) ) {
 			$post_format = wp_unslash( $_POST['post_format'] ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-
-			// Remember the chosen post format.
-			$options['post_format'] = $post_format;
-			update_option( 'import_bookmarks', $options, false );
 		}
 
-		$parser    = new \NetscapeBookmarkParser();
+		// Default "skip" setting.
+		$skip_duplicates = false;
+
+		if ( ! empty( $_POST['skip_duplicates'] ) && '1' === $_POST['skip_duplicates'] ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+			$skip_duplicates = true;
+		}
+
+		// Save settings, for next time.
+		$options['post_type']       = $post_type;
+		$options['post_status']     = $post_status;
+		$options['post_format']     = $post_format;
+		$options['skip_duplicates'] = $skip_duplicates;
+
+		update_option( 'import_bookmarks', $options, false );
+
+		$parser    = new Shaarli\NetscapeBookmarkParser\NetscapeBookmarkParser();
 		$bookmarks = $parser->parseFile( $uploaded_file['file'] );
 
 		if ( empty( $bookmarks ) || ! is_array( $bookmarks ) ) {
 			wp_die( esc_html__( 'Empty or invalid bookmarks file.', 'import-bookmarks' ) );
 		}
 
+		$imported = 0;
+		$skipped  = 0;
+
 		foreach ( $bookmarks as $bookmark ) {
+			if ( false === filter_var( $bookmark['uri'], FILTER_VALIDATE_URL ) ) {
+				// Skip invalid "URLs," like those that start with `place:`.
+				/* translators: %s: invalid URL */
+				error_log( sprintf( __( 'Skipping %s (invalid).', 'import-bookmarks' ), $bookmark['uri'] ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+				continue;
+			}
+
+			if ( $skip_duplicates ) {
+				// Requires custom field support for `$post_type`!
+				$query = new \WP_Query(
+					array(
+						'post_type'           => $post_type, // The selected post type.
+						'posts_per_page'      => -1,
+						'ignore_sticky_posts' => '1',
+						'fields'              => 'ids',
+						'meta_key'            => 'import_bookmarks_uri', // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
+						'meta_value'          => esc_url_raw( $bookmark['uri'] ), // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_value
+					)
+				);
+
+				if ( ! empty( $query->posts ) ) {
+					$skipped++;
+
+					/* translators: %s: duplicate URL */
+					error_log( sprintf( __( 'Skipping %s (duplicate).', 'import-bookmarks' ), $bookmark['uri'] ) ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+					continue;
+				}
+			}
+
 			$post_title    = sanitize_text_field( $bookmark['title'] );
 			$post_content  = sanitize_text_field( $bookmark['note'] );
-			$post_content .= "\n\n<a href='" . esc_url( $bookmark['uri'] ) . "'>" . $post_title . '</a>';
+			$post_content .= PHP_EOL . PHP_EOL . '<a href="' . esc_url( $bookmark['uri'] ) . '">' . $post_title . '</a>';
 			$post_content  = trim( $post_content );
 
 			/**
@@ -280,18 +327,35 @@ class Bookmarks_Importer {
 				)
 			);
 
-			if ( $post_id && post_type_supports( $post_type, 'custom-fields' ) ) {
-				update_post_meta( $post_id, 'import_bookmarks_uri', esc_url_raw( $bookmark['uri'] ) );
-			}
+			if ( $post_id ) {
+				$imported++;
 
-			if ( $post_id && post_type_supports( $post_type, 'post-formats' ) ) {
-				set_post_format( $post_id, $post_format );
+				if ( post_type_supports( $post_type, 'custom-fields' ) ) {
+					update_post_meta( $post_id, 'import_bookmarks_uri', esc_url_raw( $bookmark['uri'] ) );
+				}
+
+				if ( post_type_supports( $post_type, 'post-formats' ) ) {
+					set_post_format( $post_id, $post_format );
+				}
 			}
 		}
 
-		wp_safe_redirect( admin_url( 'tools.php?page=import-bookmarks&message=success&_wpnonce=' . wp_create_nonce( 'import-bookmarks-success' ) ) );
+		wp_safe_redirect(
+			esc_url_raw(
+				add_query_arg(
+					array(
+						'page'     => 'import-bookmarks',
+						'imported' => $imported,
+						'skipped'  => $skipped,
+						'_wpnonce' => wp_create_nonce( 'import-bookmarks-success' ),
+					),
+					admin_url( 'tools.php' )
+				)
+			)
+		);
 		exit;
 	}
 }
 
-new Bookmarks_Importer();
+$import_bookmarks = new Bookmarks_Importer();
+$import_bookmarks->register();

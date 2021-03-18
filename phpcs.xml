@@ -12,4 +12,6 @@
 	<rule ref="PHPCompatibilityWP">
 		<include-pattern>*\.php$</include-pattern>
 	</rule>
+
+	<exclude-pattern>vendor/*</exclude-pattern>
 </ruleset>

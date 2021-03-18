@@ -1,0 +1,6 @@
+{
+    "require": {
+        "shaarli/netscape-bookmark-parser": "dev-master"
+    },
+    "minimum-stability": "dev"
+}
