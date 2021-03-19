@@ -288,6 +288,7 @@ class Bookmarks_Importer {
 				$query = new \WP_Query(
 					array(
 						'post_type'           => $post_type, // The selected post type.
+						'post_status'         => 'any',
 						'posts_per_page'      => -1,
 						'ignore_sticky_posts' => '1',
 						'fields'              => 'ids',
